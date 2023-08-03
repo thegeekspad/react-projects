@@ -1,5 +1,4 @@
-import PropTypes from "prop-types";
-import "./Header.css";
+import PropTypes from 'prop-types';
 
 const Header = (props) => {
   const title = props.title;
@@ -14,7 +13,7 @@ const Header = (props) => {
 };
 
 Header.defaultProps = {
-  title: "Default Title",
+  title: 'Default Title',
 };
 
 Header.propTypes = {

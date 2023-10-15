@@ -2,23 +2,21 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import userRoutes from './routes/userRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+import connectDB from './config/db.js';
 
 dotenv.config();
 
 const port = process.env.PORT || 3000;
 
-mongoose
-  .connect(process.env.MONGO)
-  .then(() => {
-    console.info('Connected to MongoDB');
-  })
-  .catch((err) => {
-    console.error(`Error while connecting to the database ${err}`);
-  });
+connectDB();
 
 const app = express();
 
+app.use(express.json()); // for parsing application/json
+
 app.use('/api/users', userRoutes);
+app.use('/api/auth', authRoutes);
 
 app.get('/', (req, res) => {
   res.send('Hello World!1');

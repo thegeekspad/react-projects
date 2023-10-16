@@ -1,8 +1,11 @@
 import User from '../models/userModel.js';
+import bcrypt from 'bcryptjs';
+import { getUserByEmail } from './userController.js';
+import { errorHandler } from '../middleware/errorHandler.js';
+import generateToken from '../utils/generateToken.js';
 
-export const signup = async (req, res, next) => {
+const signup = async (req, res, next) => {
   try {
-    console.log(req.body);
     const { name, email, password } = req.body;
 
     // Validate user input
@@ -44,20 +47,42 @@ export const signup = async (req, res, next) => {
   }
 };
 
-export const signin = (req, res) => {
+const signin = async (req, res, next) => {
   try {
-    console.log('Signin');
-    res.send('Signin');
+    const { email, password } = req.body;
+
+    // Check if user with email exists
+    const user = await getUserByEmail(email);
+    if (!user) {
+      return next(errorHandler(404, 'User not found'));
+    }
+
+    // Compare password
+    const passwordMatch = bcrypt.compareSync(password, user.password);
+    if (!passwordMatch) {
+      return next(errorHandler(401, 'Invalid password'));
+    }
+
+    // Generate JWT token
+    const token = generateToken(res, user._id);
+    return res.status(200).json({ user, token });
   } catch (error) {
     next(error);
   }
 };
 
-export const signout = (req, res) => {
+const signout = async (req, res, next) => {
   try {
-    console.log('Signout');
-    res.send('Signout');
+    res.cookie('jwt', '', {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+    res.status(200).json({
+      message: 'User logged out successfully',
+    });
   } catch (error) {
     next(error);
   }
 };
+
+export { signup, signin, signout };

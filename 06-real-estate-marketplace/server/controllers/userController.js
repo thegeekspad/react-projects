@@ -3,10 +3,10 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const url = process.env.MONGO;
+const url = process.env.MONGO_URI;
 const dbName = process.env.DB;
 
-export const createUser = async (name, email) => {
+const createUser = async (name, email) => {
   const client = new MongoClient(url);
 
   try {
@@ -26,7 +26,7 @@ export const createUser = async (name, email) => {
   }
 };
 
-export const getUser = async (id) => {
+const getUser = async (id) => {
   const client = new MongoClient(url);
 
   try {
@@ -53,7 +53,7 @@ export const getUser = async (id) => {
   }
 };
 
-export const updateUser = async (id, name, email) => {
+const updateUser = async (id, name, email) => {
   const client = new MongoClient(url);
 
   try {
@@ -81,7 +81,7 @@ export const updateUser = async (id, name, email) => {
   }
 };
 
-export const deleteUser = async (id) => {
+const deleteUser = async (id) => {
   const client = new MongoClient(url);
 
   try {
@@ -102,3 +102,24 @@ export const deleteUser = async (id) => {
     await client.close();
   }
 };
+
+const getUserByEmail = async (email) => {
+  const client = new MongoClient(url);
+  try {
+    await client.connect();
+
+    const db = client.db(dbName);
+    const collection = db.collection('users');
+
+    const user = await collection.findOne({ email });
+
+    return user;
+  } catch (error) {
+    console.error(error);
+    throw new Error('Error getting user by email');
+  } finally {
+    await client.close();
+  }
+};
+
+export { createUser, getUser, updateUser, deleteUser, getUserByEmail };

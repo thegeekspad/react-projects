@@ -18,6 +18,17 @@ app.use(express.json()); // for parsing application/json
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 
+// middleware
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const message = err.message || 'Internal Server Error';
+  return res.status(statusCode).json({
+    success: false,
+    statusCode,
+    message,
+  });
+});
+
 app.get('/', (req, res) => {
   res.send('Hello World!1');
 });
